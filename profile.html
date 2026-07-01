@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        .profile-header-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 4px solid var(--primary-light);
+        }
+
+        .profile-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .profile-avatar-container:hover .profile-avatar-overlay {
+            opacity: 1;
+        }
+
+        @media (max-width: 576px) {
+            .profile-header-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Profile Header Details Card -->
+                <div class="profile-header-card">
+                    <div class="profile-avatar-container">
+                        <img id="profile-avatar-img" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" alt="Avatar">
+                        <div class="profile-avatar-overlay" onclick="triggerAvatarUpload()">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <input type="file" id="avatar-uploader" style="display:none;" accept="image/*">
+                    </div>
+                    <div>
+                        <h2 id="profile-name-label" style="font-weight:700; font-size:1.5rem; color:var(--text-primary); margin-bottom:4px;">User Fullname</h2>
+                        <p id="profile-dept-label" style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:8px;">Department Details</p>
+                        <span class="badge badge-info" id="profile-role-badge" style="font-size:0.8rem; padding: 6px 12px; text-transform:uppercase;">Student</span>
+                    </div>
+                </div>
+
+                <!-- Main settings fields tabs -->
+                <div class="grid-cols-3 gap-24">
+                    
+                    <!-- Left info credentials card -->
+                    <div class="card" style="align-self: flex-start;">
+                        <span class="card-title" style="display:block; margin-bottom:16px;">Identity File</span>
+                        <div class="d-flex flex-column gap-16" style="font-size:0.9rem;">
+                            <div>
+                                <span style="color:var(--text-secondary); display:block; font-size:0.75rem; font-weight:600;">REGISTRATION/STAFF ID</span>
+                                <strong id="info-id" style="color:var(--text-primary);">N/A</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-secondary); display:block; font-size:0.75rem; font-weight:600;">INSTITUTION DEPARTMENT</span>
+                                <strong id="info-dept" style="color:var(--text-primary);">N/A</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-secondary); display:block; font-size:0.75rem; font-weight:600;">GENDER SPECIFICATION</span>
+                                <strong id="info-gender" style="color:var(--text-primary);">N/A</strong>
+                            </div>
+                            <div>
+                                <span style="color:var(--text-secondary); display:block; font-size:0.75rem; font-weight:600;">DATE OF BIRTH</span>
+                                <strong id="info-dob" style="color:var(--text-primary);">N/A</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right columns forms editors (Spans 2 columns) -->
+                    <div class="flex-column gap-24" style="grid-column: span 2;">
+                        
+                        <!-- Personal details edit form -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">Modify Profile Details</span>
+                            </div>
+                            <form id="profile-details-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="profile-fullname">Full Name</label>
+                                        <input type="text" id="profile-fullname" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="profile-email">Email Address</label>
+                                        <input type="email" id="profile-email" class="form-control" required readonly style="background-color:var(--background); cursor:not-allowed;">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="profile-phone">Phone Number</label>
+                                        <input type="text" id="profile-phone" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="profile-dob">Date of Birth</label>
+                                        <input type="date" id="profile-dob-input" class="form-control" required>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary mt-8">
+                                    <i class="fas fa-save"></i> Save Profile Details
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Change password card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">Security & Password</span>
+                            </div>
+                            <form id="change-password-form">
+                                <div class="form-group">
+                                    <label class="form-label" for="pass-current">Current Password</label>
+                                    <input type="password" id="pass-current" class="form-control" placeholder="••••••••" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="pass-new">New Password</label>
+                                        <input type="password" id="pass-new" class="form-control" placeholder="••••••••" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="pass-confirm">Confirm New Password</label>
+                                        <input type="password" id="pass-confirm" class="form-control" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-danger mt-8">
+                                    <i class="fas fa-key"></i> Update Account Password
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Load static labels
+            document.getElementById("profile-avatar-img").src = user.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+            document.getElementById("profile-name-label").innerText = user.name;
+            document.getElementById("profile-dept-label").innerText = user.department;
+            
+            const roleBadge = document.getElementById("profile-role-badge");
+            roleBadge.innerText = user.role;
+            if (user.role === "student") roleBadge.className = "badge badge-info";
+            else if (user.role === "admin") roleBadge.className = "badge badge-danger";
+            else roleBadge.className = "badge badge-success";
+
+            // Left Card Details
+            document.getElementById("info-id").innerText = user.id;
+            document.getElementById("info-dept").innerText = user.department;
+            document.getElementById("info-gender").innerText = user.gender || "Not specified";
+            document.getElementById("info-dob").innerText = user.dob || "Not specified";
+
+            // Input Fields Prefilling
+            document.getElementById("profile-fullname").value = user.name;
+            document.getElementById("profile-email").value = user.email;
+            document.getElementById("profile-phone").value = user.phone || "";
+            document.getElementById("profile-dob-input").value = user.dob || "";
+
+            // Avatar Upload Trigger
+            window.triggerAvatarUpload = () => {
+                document.getElementById("avatar-uploader").click();
+            };
+
+            document.getElementById("avatar-uploader").addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const avatarBase64 = event.target.result;
+                        document.getElementById("profile-avatar-img").src = avatarBase64;
+                        
+                        // Save avatar to state
+                        DataService.updateUserProfile(user.id, { avatar: avatarBase64 });
+                        
+                        // Re-render header navbar badge
+                        const navbar = document.getElementById("navbar");
+                        if (navbar) renderNavbar(navbar, AuthManager.getCurrentUser());
+
+                        Toast.success("Photo Uploaded", "Your profile photo has been updated successfully.");
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Save Details Form Submit
+            document.getElementById("profile-details-form").onsubmit = (e) => {
+                e.preventDefault();
+                const name = document.getElementById("profile-fullname").value;
+                const phone = document.getElementById("profile-phone").value;
+                const dob = document.getElementById("profile-dob-input").value;
+
+                const success = DataService.updateUserProfile(user.id, { name, phone, dob });
+                if (success) {
+                    Toast.success("Profile Saved", "Personal configurations updated successfully.");
+                    
+                    // Re-render labels & header
+                    const updatedUser = AuthManager.getCurrentUser();
+                    document.getElementById("profile-name-label").innerText = updatedUser.name;
+                    document.getElementById("info-dob").innerText = updatedUser.dob || "Not specified";
+                    
+                    const navbar = document.getElementById("navbar");
+                    if (navbar) renderNavbar(navbar, updatedUser);
+                }
+            };
+
+            // Password update submission form
+            document.getElementById("change-password-form").onsubmit = (e) => {
+                e.preventDefault();
+                const curPass = document.getElementById("pass-current").value;
+                const newPass = document.getElementById("pass-new").value;
+                const confirmPass = document.getElementById("pass-confirm").value;
+
+                if (curPass !== user.password) {
+                    Toast.error("Verification Failed", "The current password entered is incorrect.");
+                    return;
+                }
+
+                if (newPass !== confirmPass) {
+                    Toast.error("Invalid Matching", "New and Confirm password inputs do not match.");
+                    return;
+                }
+
+                const success = DataService.updateUserProfile(user.id, { password: newPass });
+                if (success) {
+                    Toast.success("Security Updated", "Your account password was updated successfully.");
+                    
+                    // Reset fields
+                    document.getElementById("pass-current").value = "";
+                    document.getElementById("pass-new").value = "";
+                    document.getElementById("pass-confirm").value = "";
+                }
+            };
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Absentee Leave Monitoring System</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        body {
+            background-color: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            max-width: 1080px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            min-height: 620px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .login-left {
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-right {
+            background: linear-gradient(135deg, var(--primary) 0%, #1D4ED8 100%);
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 32px;
+        }
+
+        .login-logo i {
+            font-size: 2rem;
+        }
+
+        .quick-login-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .quick-login-btn {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            text-transform: capitalize;
+        }
+
+        .quick-login-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        /* SVG Illustration Styling */
+        .illustration-container {
+            width: 100%;
+            max-width: 380px;
+            z-index: 10;
+        }
+
+        .illustration-text {
+            text-align: center;
+            margin-top: 32px;
+            z-index: 10;
+        }
+
+        .circle-bg-1 {
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background-color: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .circle-bg-2 {
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background-color: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        @media (max-width: 900px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                min-height: auto;
+            }
+            .login-right {
+                display: none;
+            }
+            .login-left {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        
+        <!-- Left Column: Authentication Form -->
+        <div class="login-left">
+            <div class="login-logo">
+                <i class="fas fa-university"></i>
+                <span>Smart Leave ERP</span>
+            </div>
+            
+            <h2 style="font-weight: 700; font-size: 1.5rem; margin-bottom: 8px;">Portal Sign In</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Enter credentials to access academic attendance console.</p>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Email Address</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="username@university.edu" required autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                
+                <div class="d-flex justify-between align-center mb-24">
+                    <label class="d-flex align-center gap-8" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;">
+                        <input type="checkbox" style="border-radius: 4px; border: 1px solid var(--border);"> Remember me
+                    </label>
+                    <a href="#" id="forgot-password-btn" style="font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500;">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-full" style="padding: 12px; font-size: 1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Access Dashboard
+                </button>
+            </form>
+
+            <div class="quick-login-grid">
+                <div style="grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px;">PROTOTYPE QUICK LOGIN:</div>
+                <button class="quick-login-btn" data-role="student">student</button>
+                <button class="quick-login-btn" data-role="coordinator">coordinator</button>
+                <button class="quick-login-btn" data-role="hod">HOD</button>
+                <button class="quick-login-btn" data-role="dean">dean</button>
+                <button class="quick-login-btn" data-role="admin">admin</button>
+            </div>
+        </div>
+        
+        <!-- Right Column: Banner & Marketing Branding -->
+        <div class="login-right">
+            <div class="circle-bg-1"></div>
+            <div class="circle-bg-2"></div>
+            
+            <div class="illustration-container">
+                <!-- Inline SVG University Illustration -->
+                <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Ground -->
+                    <line x1="10" y1="130" x2="190" y2="130" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                    
+                    <!-- University Building -->
+                    <rect x="30" y="50" width="140" height="80" rx="4" fill="#ffffff" fill-opacity="0.15"/>
+                    <rect x="40" y="60" width="120" height="70" rx="2" fill="#ffffff" fill-opacity="0.2"/>
+                    
+                    <!-- Pillars -->
+                    <rect x="55" y="70" width="8" height="60" fill="#ffffff"/>
+                    <rect x="75" y="70" width="8" height="60" fill="#ffffff"/>
+                    <rect x="115" y="70" width="8" height="60" fill="#ffffff"/>
+                    <rect x="135" y="70" width="8" height="60" fill="#ffffff"/>
+                    
+                    <!-- Triangle Roof -->
+                    <polygon points="30,50 100,20 170,50" fill="#ffffff"/>
+                    <circle cx="100" cy="38" r="5" fill="#2563EB"/>
+                    
+                    <!-- Door -->
+                    <path d="M 90,130 A 10,10 0 0,1 110,130 Z" fill="#ffffff"/>
+                </svg>
+            </div>
+            
+            <div class="illustration-text">
+                <h3 style="font-weight: 700; font-size: 1.3rem; margin-bottom: 8px;">Leave & Absentee Portal</h3>
+                <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); max-width: 280px; margin: 0 auto;">Streamlining leave applications, attendance metrics, and fine accounts across departments.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        // Form submission handling
+        document.getElementById("login-form").onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById("login-email").value;
+            const pass = document.getElementById("login-password").value;
+            
+            const result = AuthManager.login(email, pass);
+            if (result.success) {
+                // Successful redirect
+                window.location.href = `${result.user.role}-dashboard.html`;
+            } else {
+                // Toast Error Alert
+                Toast.error("Authentication Failed", result.message);
+            }
+        };
+
+        // Forgot password simulator
+        document.getElementById("forgot-password-btn").onclick = (e) => {
+            e.preventDefault();
+            Toast.info("Password Reset Sent", "Check your registered university inbox for recovery link.");
+        };
+
+        // Quick log-in credentials preset filler
+        document.querySelectorAll(".quick-login-btn").forEach(btn => {
+            btn.onclick = () => {
+                const roleName = btn.getAttribute("data-role");
+                let email = "";
+                if (roleName === "student") email = "student@university.edu";
+                else if (roleName === "coordinator") email = "coordinator@university.edu";
+                else if (roleName === "hod") email = "hod@university.edu";
+                else if (roleName === "dean") email = "dean@university.edu";
+                else if (roleName === "admin") email = "admin@university.edu";
+
+                document.getElementById("login-email").value = email;
+                document.getElementById("login-password").value = "password123";
+                
+                Toast.success("Preset Prefilled", `Ready to log in as ${roleName.toUpperCase()}.`);
+            };
+        });
+    </script>
+</body>
+</html>

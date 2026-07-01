@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave History - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- History Table Container -->
+                <div class="table-container">
+                    <div class="table-header-toolbar">
+                        <div class="table-filters" style="flex-grow: 1;">
+                            <!-- Search Bar -->
+                            <div class="table-search-bar" style="max-width:280px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="leaves-history-table-search" placeholder="Search leave files...">
+                            </div>
+                            
+                            <!-- Category Filter -->
+                            <select id="filter-type" class="form-control select-dropdown" style="max-width:180px; padding: 10px 16px;">
+                                <option value="ALL">All Categories</option>
+                                <option value="Medical Leave">Medical Leave</option>
+                                <option value="Casual Leave">Casual Leave</option>
+                                <option value="Academic Leave">Academic Leave</option>
+                            </select>
+
+                            <!-- Status Filter -->
+                            <select id="filter-status" class="form-control select-dropdown" style="max-width:180px; padding: 10px 16px;">
+                                <option value="ALL">All Statuses</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <span class="badge badge-info" id="history-scope-badge">Current Session logs</span>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="data-table" id="leaves-history-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-col="id">Leave ID <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="studentName">Student <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="type">Leave Type <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="startDate">Date Range <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="duration">Duration <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="appliedDate">Applied Date <i class="fas fa-sort"></i></th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <div class="pagination-info" id="leaves-history-table-pagination-info">Showing 0 to 0 of 0 entries</div>
+                        <div class="pagination-controls" id="leaves-history-table-pagination-controls">
+                            <!-- pagination controls -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Details Dialog Modal -->
+    <div class="modal" id="leave-view-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Leave Log Details</span>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="leave-modal-body">
+                <!-- Loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Fetch leaves based on role permissions
+            const allLeaves = DataService.getLeaves();
+            let leaves = [];
+            const scopeEl = document.getElementById("history-scope-badge");
+
+            if (user.role === "student") {
+                leaves = allLeaves.filter(l => l.studentId === user.id);
+                scopeEl.innerText = "Personal Logs Only";
+            } else if (user.role === "coordinator" || user.role === "hod") {
+                leaves = allLeaves.filter(l => l.department === user.department);
+                scopeEl.innerText = `${user.department} Dept Logs`;
+            } else {
+                leaves = allLeaves;
+                scopeEl.innerText = "University-wide Logs";
+            }
+
+            // Initialize Table Helper
+            TableHelper.init("leaves-history-table", leaves, ["ID", "Student", "Type", "Range", "Duration", "Applied Date", "Status", "Actions"], {
+                limit: 5,
+                sortBy: "appliedDate",
+                sortOrder: "desc",
+                renderRow: (row) => {
+                    const tr = document.createElement("tr");
+                    let badgeClass = "badge-info";
+                    if (row.status === "Approved") badgeClass = "badge-success";
+                    if (row.status === "Rejected") badgeClass = "badge-danger";
+                    if (row.status === "Pending") badgeClass = "badge-warning";
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600; color:var(--primary);">${row.id}</td>
+                        <td>
+                            <div style="font-weight:600;">${row.studentName}</div>
+                            <small style="color:var(--text-secondary);">${row.studentId}</small>
+                        </td>
+                        <td><span class="badge badge-info">${row.type}</span></td>
+                        <td>${row.startDate} to ${row.endDate}</td>
+                        <td>${row.duration} Day(s)</td>
+                        <td>${row.appliedDate}</td>
+                        <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                        <td>
+                            <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="viewFullDetail('${row.id}')">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                        </td>
+                    `;
+                    return tr;
+                }
+            });
+
+            // Filtering Handler
+            const filterType = document.getElementById("filter-type");
+            const filterStatus = document.getElementById("filter-status");
+
+            const applyCustomFilters = () => {
+                const typeVal = filterType.value;
+                const statusVal = filterStatus.value;
+                
+                let filtered = [...leaves];
+                if (typeVal !== "ALL") {
+                    filtered = filtered.filter(l => l.type === typeVal);
+                }
+                if (statusVal !== "ALL") {
+                    filtered = filtered.filter(l => l.status === statusVal);
+                }
+
+                TableHelper.tables["leaves-history-table"].data = filtered;
+                TableHelper.applyFilters("leaves-history-table");
+            };
+
+            filterType.addEventListener("change", applyCustomFilters);
+            filterStatus.addEventListener("change", applyCustomFilters);
+
+            // View detail handler
+            window.viewFullDetail = (id) => {
+                const item = allLeaves.find(l => l.id === id);
+                if (item) {
+                    let badgeClass = "badge-info";
+                    if (item.status === "Approved") badgeClass = "badge-success";
+                    if (item.status === "Rejected") badgeClass = "badge-danger";
+                    if (item.status === "Pending") badgeClass = "badge-warning";
+
+                    const details = document.getElementById("leave-modal-body");
+                    details.innerHTML = `
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div><strong>Leave ID:</strong> <p>${item.id}</p></div>
+                            <div><strong>Current Status:</strong> <p><span class="badge ${badgeClass}">${item.status}</span></p></div>
+                            <div><strong>Applicant:</strong> <p>${item.studentName} (${item.studentId})</p></div>
+                            <div><strong>Department:</strong> <p>${item.department}</p></div>
+                            <div><strong>Category:</strong> <p>${item.type}</p></div>
+                            <div><strong>Duration:</strong> <p>${item.duration} Day(s)</p></div>
+                            <div><strong>Start Date:</strong> <p>${item.startDate}</p></div>
+                            <div><strong>End Date:</strong> <p>${item.endDate}</p></div>
+                            <div><strong>Date Applied:</strong> <p>${item.appliedDate}</p></div>
+                            <div><strong>Sanction Handler:</strong> <p>${item.handler || 'Unassigned'}</p></div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <strong>Reason:</strong>
+                            <p style="background:var(--background); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:0.9rem; margin-top:6px;">${item.reason}</p>
+                        </div>
+                        ${item.remarks ? `
+                            <div style="margin-bottom: 16px;">
+                                <strong>Remarks:</strong>
+                                <p style="background:var(--primary-light); color:var(--primary); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--primary-light); font-size:0.9rem; margin-top:6px;">${item.remarks}</p>
+                            </div>
+                        ` : ''}
+                        ${item.attachment ? `
+                            <div>
+                                <strong>Uploaded Attachment:</strong>
+                                <p style="margin-top:6px;"><i class="fas fa-file-pdf" style="color:var(--danger); margin-right:8px;"></i> <a href="#" style="color:var(--primary); font-weight:500;">${item.attachment}</a></p>
+                            </div>
+                        ` : ''}
+                    `;
+                    ModalController.show("leave-view-modal");
+                }
+            };
+        });
+    </script>
+</body>
+</html>

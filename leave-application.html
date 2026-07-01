@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Application - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        .file-upload-wrapper {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            background-color: var(--background);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .file-upload-wrapper:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .file-upload-wrapper:hover .upload-icon {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="card-header">
+                        <span class="card-title">New Leave Request Application</span>
+                        <span class="badge badge-info">Approval Portal</span>
+                    </div>
+                    
+                    <form id="leave-application-form">
+                        <div class="form-row">
+                            <!-- Leave Type -->
+                            <div class="form-group">
+                                <label class="form-label" for="leave-type">Leave Category Type</label>
+                                <select id="leave-type" class="form-control select-dropdown" required>
+                                    <option value="" disabled selected>Select leave type...</option>
+                                    <option value="Medical Leave">Medical Leave</option>
+                                    <option value="Casual Leave">Casual Leave</option>
+                                    <option value="Academic Leave">Academic Leave</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Dummy Column for balancing layout -->
+                            <div></div>
+                        </div>
+
+                        <div class="form-row">
+                            <!-- From Date -->
+                            <div class="form-group">
+                                <label class="form-label" for="start-date">From Date</label>
+                                <input type="date" id="start-date" class="form-control" required>
+                            </div>
+                            
+                            <!-- To Date -->
+                            <div class="form-group">
+                                <label class="form-label" for="end-date">To Date</label>
+                                <input type="date" id="end-date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <!-- Reason -->
+                        <div class="form-group">
+                            <label class="form-label" for="reason">Detailed Explanation Reason</label>
+                            <textarea id="reason" class="form-control" rows="5" placeholder="Specify details regarding your absence request (e.g. clinic name, evaluation dates, event info)..." required></textarea>
+                        </div>
+
+                        <!-- Attachment -->
+                        <div class="form-group">
+                            <label class="form-label">Supporting Evidence / Attachment Upload (PDF, JPEG, PNG)</label>
+                            <div class="file-upload-wrapper">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <div style="font-weight:600; font-size:0.95rem; margin-bottom:4px;" id="file-upload-title">Choose file or drag here</div>
+                                <div style="color:var(--text-secondary); font-size:0.75rem;">Supports medical certs, SIH invitation letters, event tickets (Max 2MB)</div>
+                                <input type="file" id="attachment-file" accept=".pdf,image/*">
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-between align-center mt-32 pt-24" style="border-top: 1px solid var(--border);">
+                            <button type="reset" id="reset-form-btn" class="btn btn-outline">
+                                <i class="fas fa-undo"></i> Reset Form
+                            </button>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Submit Application
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Handle date validations: Start date must be today or future; End date >= Start date
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("start-date").min = today;
+            document.getElementById("end-date").min = today;
+
+            document.getElementById("start-date").addEventListener("change", (e) => {
+                document.getElementById("end-date").min = e.target.value;
+            });
+
+            // Display selected file name
+            const fileInput = document.getElementById("attachment-file");
+            const fileTitle = document.getElementById("file-upload-title");
+            fileInput.addEventListener("change", (e) => {
+                if (fileInput.files.length > 0) {
+                    fileTitle.innerHTML = `<span style="color:var(--primary)"><i class="fas fa-file-alt"></i> ${fileInput.files[0].name}</span>`;
+                } else {
+                    fileTitle.innerText = "Choose file or drag here";
+                }
+            });
+
+            // Reset form handler
+            document.getElementById("reset-form-btn").onclick = () => {
+                fileTitle.innerText = "Choose file or drag here";
+                Toast.info("Form Reseted", "Fields cleared successfully.");
+            };
+
+            // Form Submit Logic
+            document.getElementById("leave-application-form").onsubmit = (e) => {
+                e.preventDefault();
+
+                const type = document.getElementById("leave-type").value;
+                const startDate = document.getElementById("start-date").value;
+                const endDate = document.getElementById("end-date").value;
+                const reason = document.getElementById("reason").value;
+                const file = fileInput.files[0] ? fileInput.files[0].name : "";
+
+                // Calculate duration
+                const d1 = new Date(startDate);
+                const d2 = new Date(endDate);
+                const diffTime = Math.abs(d2 - d1);
+                const duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                if (user.leaveBalance < duration && user.role === "student") {
+                    Toast.error("Insufficient Leave Balance", `You only have ${user.leaveBalance} days remaining but requested ${duration} days.`);
+                    return;
+                }
+
+                // Save application
+                DataService.saveLeave({
+                    studentName: user.name,
+                    studentId: user.id,
+                    department: user.department,
+                    type,
+                    startDate,
+                    endDate,
+                    duration,
+                    reason,
+                    attachment: file
+                });
+
+                // Update user leave balance
+                if (user.role === "student") {
+                    user.leaveBalance -= duration;
+                    const users = JSON.parse(localStorage.getItem("absentee_system_users"));
+                    const uIdx = users.findIndex(u => u.id === user.id);
+                    users[uIdx].leaveBalance = user.leaveBalance;
+                    localStorage.setItem("absentee_system_users", JSON.stringify(users));
+                    localStorage.setItem("absentee_system_current_user", JSON.stringify(users[uIdx]));
+                }
+
+                Toast.success("Application Submitted", "Your request was delivered to your department coordinator.");
+                
+                // Redirect after brief delay
+                setTimeout(() => {
+                    window.location.href = "leave-history.html";
+                }, 1500);
+            };
+        });
+    </script>
+</body>
+</html>

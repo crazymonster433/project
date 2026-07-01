@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dean Dashboard - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Dean Statistics Header Row -->
+                <div class="grid-cols-4 gap-24 mb-24">
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">UNIVERSITY STUDENTS</span>
+                            <span class="stat-value" id="dean-total-students">0</span>
+                            <small style="color: var(--text-secondary);">Enrolled undergraduates</small>
+                        </div>
+                        <div class="stat-icon primary"><i class="fas fa-university"></i></div>
+                    </div>
+                    
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">UNIVERSITY FINE REVENUE</span>
+                            <span class="stat-value" id="dean-revenue-fines">₹0</span>
+                            <small style="color: var(--secondary);">Total paid penalties</small>
+                        </div>
+                        <div class="stat-icon secondary"><i class="fas fa-coins"></i></div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">CAMPUS AVG ATTENDANCE</span>
+                            <span class="stat-value">80.6%</span>
+                            <small style="color: var(--warning);">University target: 75%</small>
+                        </div>
+                        <div class="stat-icon warning"><i class="fas fa-chart-line"></i></div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">DEPT COMPLIANCE RATE</span>
+                            <span class="stat-value">94.2%</span>
+                            <small style="color: var(--text-secondary);">Faculty logging rate</small>
+                        </div>
+                        <div class="stat-icon danger"><i class="fas fa-user-check"></i></div>
+                    </div>
+                </div>
+
+                <!-- Dean Charts Grid Layout -->
+                <div class="grid-cols-2 gap-24 mb-24">
+                    
+                    <!-- Left: Department Attendance comparisons -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Attendance Rate Comparison between Departments</span>
+                        </div>
+                        <div style="height: 300px;">
+                            <canvas id="dean-dept-attendance-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Monthly Fine Collections Trend -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Monthly Fine Collections Trend</span>
+                        </div>
+                        <div style="height: 300px;">
+                            <canvas id="dean-fine-trend-chart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Institutional Department Benchmarks Table -->
+                <div class="table-container">
+                    <div class="table-header-toolbar">
+                        <h3 class="card-title" style="margin-bottom:0;">Department Attendance Benchmarks</h3>
+                        <span class="badge badge-info">Term: Odd Sem 2026</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Department Name</th>
+                                    <th>Faculty Count</th>
+                                    <th>Average Attendance %</th>
+                                    <th>Leaves Registered</th>
+                                    <th>Absence Invoices</th>
+                                    <th>Compliance Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Computer Science & Engineering</strong></td>
+                                    <td>12</td>
+                                    <td><span style="font-weight:600; color:var(--secondary)">85.0%</span></td>
+                                    <td>24</td>
+                                    <td>₹1,250 Pending</td>
+                                    <td><span class="badge badge-success">Excellent</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mechanical Engineering</strong></td>
+                                    <td>8</td>
+                                    <td><span style="font-weight:600; color:var(--secondary)">82.0%</span></td>
+                                    <td>16</td>
+                                    <td>₹400 Pending</td>
+                                    <td><span class="badge badge-success">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Civil Engineering</strong></td>
+                                    <td>6</td>
+                                    <td><span style="font-weight:600; color:var(--secondary)">80.0%</span></td>
+                                    <td>12</td>
+                                    <td>₹950 Pending</td>
+                                    <td><span class="badge badge-success">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Electronics & Communication</strong></td>
+                                    <td>9</td>
+                                    <td><span style="font-weight:600; color:var(--warning)">78.0%</span></td>
+                                    <td>18</td>
+                                    <td>₹1,800 Pending</td>
+                                    <td><span class="badge badge-warning">Average</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Electrical Engineering</strong></td>
+                                    <td>7</td>
+                                    <td><span style="font-weight:600; color:var(--danger)">73.0%</span></td>
+                                    <td>32</td>
+                                    <td>₹2,500 Pending</td>
+                                    <td><span class="badge badge-danger">Needs Review</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts Container -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Page Header with Filters -->
+                <div class="card mb-24">
+                    <div class="table-header-toolbar" style="border:none; padding:0; background:none;">
+                        <div>
+                            <h2 class="card-title" style="font-size:1.3rem;">Aggregate Report Generator</h2>
+                            <p style="color:var(--text-secondary); font-size:0.85rem; margin-top:4px;">Generate, inspect, and export charts and spreadsheets regarding campus attendance compliance.</p>
+                        </div>
+                        
+                        <div class="table-filters">
+                            <select id="report-dept" class="form-control select-dropdown" style="max-width:180px; padding:10px 16px;">
+                                <option value="ALL">All Departments</option>
+                                <option value="CSE">Computer Science</option>
+                                <option value="ECE">Electronics</option>
+                                <option value="ME">Mechanical</option>
+                                <option value="EE">Electrical</option>
+                            </select>
+                            
+                            <select id="report-duration" class="form-control select-dropdown" style="max-width:150px; padding:10px 16px;">
+                                <option value="this-month">This Month</option>
+                                <option value="last-3">Last 3 Months</option>
+                                <option value="this-sem">Active Sem</option>
+                            </select>
+
+                            <button id="btn-export-pdf" class="btn btn-primary">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                            <button id="btn-export-excel" class="btn btn-outline">
+                                <i class="fas fa-file-excel" style="color:var(--secondary);"></i> CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs Container -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="tab-attendance">Attendance Analytics</button>
+                        <button class="tab-btn" data-tab="tab-leaves">Leave Summaries</button>
+                        <button class="tab-btn" data-tab="tab-fines">Fine Registers</button>
+                    </div>
+
+                    <!-- 1. Attendance Analytics Tab -->
+                    <div class="tab-panel active" id="tab-attendance">
+                        <div class="grid-cols-2 gap-24">
+                            <!-- Line Chart: Weekly aggregate trends -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Campus Attendance Over Weeks</span>
+                                </div>
+                                <div style="height: 300px;">
+                                    <canvas id="report-att-line"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Doughnut Chart: Attendance distribution -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Daily Absentee Breakdown Status</span>
+                                </div>
+                                <div style="height: 300px; position:relative;">
+                                    <canvas id="report-att-doughnut"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Leave Summaries Tab -->
+                    <div class="tab-panel" id="tab-leaves">
+                        <div class="grid-cols-2 gap-24">
+                            <!-- Pie Chart: categories breakdown -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Leave Type Allocations</span>
+                                </div>
+                                <div style="height: 300px; position:relative;">
+                                    <canvas id="report-leave-pie"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Bar Chart: approvals speed -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">Leaves Approved vs Rejected (Department-wise)</span>
+                                </div>
+                                <div style="height: 300px;">
+                                    <canvas id="report-leave-bar"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Fine Registers Tab -->
+                    <div class="tab-panel" id="tab-fines">
+                        <div class="grid-cols-2 gap-24">
+                            <!-- Bar Chart: Fine Revenues -->
+                            <div class="card" style="grid-column: span 2;">
+                                <div class="card-header">
+                                    <span class="card-title">Monthly Fine Billing Collections</span>
+                                    <span class="badge badge-warning">Penalties ledger</span>
+                                </div>
+                                <div style="height: 300px;">
+                                    <canvas id="report-fines-bar"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Setup Tabs switching
+            document.querySelectorAll(".tab-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+                    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+                    
+                    btn.classList.add("active");
+                    const tabId = btn.getAttribute("data-tab");
+                    document.getElementById(tabId).classList.add("active");
+                    
+                    // Trigger redraw of charts in that tab (prevents layout scaling bugs)
+                    initTabCharts(tabId);
+                });
+            });
+
+            // Tab Chart Initializations
+            const initTabCharts = (tabId) => {
+                if (tabId === "tab-attendance") {
+                    // Line Chart
+                    ChartHelper.createLineChart(
+                        "report-att-line",
+                        ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7", "Week 8"],
+                        [78, 80, 81, 79, 83, 82, 85, 84],
+                        "Aggregate Attendance %"
+                    );
+
+                    // Doughnut Chart
+                    ChartHelper.createDoughnutChart(
+                        "report-att-doughnut",
+                        ["Present", "Approved Leave", "Unexcused Absence", "Excused Absence"],
+                        [82, 10, 6, 2]
+                    );
+                } else if (tabId === "tab-leaves") {
+                    // Pie Chart
+                    ChartHelper.createPieChart(
+                        "report-leave-pie",
+                        ["Medical Leave", "Casual Leave", "Academic Leave", "Rejected"],
+                        [18, 14, 8, 4]
+                    );
+
+                    // Bar Chart (Grouped/Stacked)
+                    ChartHelper.createBarChart(
+                        "report-leave-bar",
+                        ["CSE", "ECE", "ME", "EE", "CE"],
+                        [
+                            { label: "Approved Requests", data: [15, 12, 10, 8, 11], backgroundColor: ChartColors.secondary },
+                            { label: "Rejected Requests", data: [2, 4, 3, 5, 2], backgroundColor: ChartColors.danger }
+                        ]
+                    );
+                } else if (tabId === "tab-fines") {
+                    // Fine Billing Bar Chart
+                    ChartHelper.createBarChart(
+                        "report-fines-bar",
+                        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+                        [
+                            { label: "Revenue Collected (₹)", data: [3200, 5400, 4800, 9200, 7100, 6500, 1500], backgroundColor: ChartColors.secondary },
+                            { label: "Outstanding Pending (₹)", data: [1200, 2500, 1800, 4300, 3100, 2800, 800], backgroundColor: ChartColors.warning }
+                        ]
+                    );
+                }
+            };
+
+            // Init default tab charts
+            initTabCharts("tab-attendance");
+
+            // Filter Change triggers reports redraw
+            document.getElementById("report-dept").addEventListener("change", () => {
+                Toast.info("Report Filtering", "Re-compiling analytics for selection...");
+                const activeTab = document.querySelector(".tab-btn.active").getAttribute("data-tab");
+                initTabCharts(activeTab);
+            });
+
+            document.getElementById("report-duration").addEventListener("change", () => {
+                Toast.info("Report Filtering", "Scaling timeline reports for selection...");
+                const activeTab = document.querySelector(".tab-btn.active").getAttribute("data-tab");
+                initTabCharts(activeTab);
+            });
+
+            // Export Actions
+            document.getElementById("btn-export-pdf").onclick = () => {
+                Toast.success("PDF Compiled", "Analytical summary document prepared. Mock download initiated.");
+            };
+
+            document.getElementById("btn-export-excel").onclick = () => {
+                Toast.success("Spreadsheet Downloaded", "Aggregated roster log exported as CSV.");
+            };
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Admin Statistics Grid -->
+                <div class="grid-cols-4 gap-24 mb-24">
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL INSTITUTIONS</span>
+                            <span class="stat-value">5 Depts</span>
+                            <small style="color: var(--text-secondary);">Academic departments</small>
+                        </div>
+                        <div class="stat-icon primary"><i class="fas fa-sitemap"></i></div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL FACULTY</span>
+                            <span class="stat-value">40 Admin</span>
+                            <small style="color: var(--text-secondary);">Active supervisors</small>
+                        </div>
+                        <div class="stat-icon secondary"><i class="fas fa-user-tie"></i></div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL REVENUE (FINES)</span>
+                            <span class="stat-value" id="admin-total-fines">₹0</span>
+                            <small style="color: var(--secondary);">Collected penalties</small>
+                        </div>
+                        <div class="stat-icon warning"><i class="fas fa-hand-holding-usd"></i></div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">SYSTEM UPTIME</span>
+                            <span class="stat-value">99.98%</span>
+                            <small style="color: var(--secondary);">Live monitoring</small>
+                        </div>
+                        <div class="stat-icon danger"><i class="fas fa-server"></i></div>
+                    </div>
+                </div>
+
+                <!-- Charts Layout Row -->
+                <div class="grid-cols-2 gap-24 mb-24">
+                    <!-- Pie Chart: Leaves Categorized -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Leave Request Distributions</span>
+                        </div>
+                        <div style="height: 280px; position: relative;">
+                            <canvas id="admin-leave-pie-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Bar Chart: System Usage -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">User Operations Logs (Hourly)</span>
+                        </div>
+                        <div style="height: 280px;">
+                            <canvas id="admin-user-activities-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostics & Fine Settings Rules Configuration -->
+                <div class="grid-cols-3 gap-24">
+                    
+                    <!-- System Status Panel (Spans 2 columns) -->
+                    <div class="card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <span class="card-title">System Status & Environment</span>
+                            <span class="badge badge-success"><i class="fas fa-check" style="margin-right:4px;"></i> Normal</span>
+                        </div>
+                        
+                        <div class="d-flex flex-column gap-16">
+                            <!-- Progress Bar items for CPU, RAM, Disk, DB -->
+                            <div class="progress-container">
+                                <div class="progress-header">
+                                    <span>Database Size (Local Sync)</span>
+                                    <span>2.4 MB / 10 MB</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill progress-secondary" style="width: 24%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-container">
+                                <div class="progress-header">
+                                    <span>API Server Load (Simulated)</span>
+                                    <span>12%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill progress-primary" style="width: 12%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="progress-container">
+                                <div class="progress-header">
+                                    <span>Memory Usage</span>
+                                    <span>42%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill progress-warning" style="width: 42%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-24 mt-24 pt-16" style="border-top:1px solid var(--border); font-size:0.85rem; color:var(--text-secondary);">
+                            <div><i class="fas fa-database" style="margin-right:6px;"></i> DB Engine: <strong>localStorage (JSON)</strong></div>
+                            <div><i class="fas fa-network-wired" style="margin-right:6px;"></i> Connection: <strong>Secure SSL</strong></div>
+                            <div><i class="fas fa-microchip" style="margin-right:6px;"></i> Platform: <strong>Vanilla Client ES6</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Fine Rate Settings Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Attendance Policy Rules</span>
+                        </div>
+                        <form id="admin-policy-form">
+                            <div class="form-group">
+                                <label class="form-label" for="admin-threshold-input">Absence Limit (Days)</label>
+                                <input type="number" id="admin-threshold-input" class="form-control" placeholder="3" min="1">
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Fines issued after consecutive days</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="admin-rate-input">Daily Fine Rate (₹)</label>
+                                <input type="number" id="admin-rate-input" class="form-control" placeholder="100" min="0">
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">Penalty fee charged per day</small>
+                            </div>
+                            
+                            <button type="submit" id="admin-save-rules-btn" class="btn btn-primary w-full mt-8">
+                                <i class="fas fa-save"></i> Save Policy Rules
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

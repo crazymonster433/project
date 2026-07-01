@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine Management - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Fine Summary Cards Grid -->
+                <div class="grid-cols-3 gap-24 mb-24">
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL PENDING FINES</span>
+                            <span class="stat-value" id="fines-pending-sum">₹0</span>
+                            <small style="color:var(--danger)">Unpaid penalties</small>
+                        </div>
+                        <div class="stat-icon danger"><i class="fas fa-hand-holding-usd"></i></div>
+                    </div>
+                    
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL PAID FINES</span>
+                            <span class="stat-value" id="fines-paid-sum">₹0</span>
+                            <small style="color:var(--secondary)">Collected revenue</small>
+                        </div>
+                        <div class="stat-icon secondary"><i class="fas fa-piggy-bank"></i></div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">TOTAL ASSESSED FINES</span>
+                            <span class="stat-value" id="fines-total-sum">₹0</span>
+                            <small style="color:var(--text-secondary)">Cumulative balance</small>
+                        </div>
+                        <div class="stat-icon primary"><i class="fas fa-balance-scale"></i></div>
+                    </div>
+                </div>
+
+                <!-- Fine Table Ledger -->
+                <div class="table-container">
+                    <div class="table-header-toolbar">
+                        <div class="table-filters" style="flex-grow: 1;">
+                            <!-- Search Bar -->
+                            <div class="table-search-bar" style="max-width:280px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="fines-table-search" placeholder="Search fine invoices...">
+                            </div>
+
+                            <!-- Status Filter -->
+                            <select id="filter-fine-status" class="form-control select-dropdown" style="max-width:180px; padding: 10px 16px;">
+                                <option value="ALL">All Invoices</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Paid">Paid</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="data-table" id="fines-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-col="id">Invoice ID <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="studentName">Student Details <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="amount">Amount <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="date">Date Issued <i class="fas fa-sort"></i></th>
+                                    <th>Reason Description</th>
+                                    <th class="sortable" data-col="status">Status <i class="fas fa-sort"></i></th>
+                                    <th>Receipt Ref</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded dynamically via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <div class="pagination-info" id="fines-table-pagination-info">Showing 0 to 0 of 0 entries</div>
+                        <div class="pagination-controls" id="fines-table-pagination-controls">
+                            <!-- pagination controls -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Fine Payment Simulator Dialog Modal -->
+    <div class="modal" id="pay-fine-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Complete Fine Payment</span>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="pay-fine-form">
+                <div class="modal-body">
+                    <input type="hidden" id="payment-fine-id">
+                    
+                    <div style="background-color: var(--primary-light); color: var(--primary); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; font-weight: 600; text-align: center;">
+                        Amount to Pay: <span id="payment-amount-label" style="font-size: 1.25rem;">₹0</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="card-num">Card Number</label>
+                        <input type="text" id="card-num" class="form-control" placeholder="4111 2222 3333 4444" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="card-expiry">Expiry Date</label>
+                            <input type="text" id="card-expiry" class="form-control" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="card-cvv">CVV</label>
+                            <input type="password" id="card-cvv" class="form-control" placeholder="•••" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-secondary">Confirm payment simulation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Fetch Fine data scope based on role permissions
+            const allFines = DataService.getFines();
+            let fines = [];
+
+            const renderKPIs = () => {
+                const activeList = (user.role === "student") 
+                    ? DataService.getFines().filter(f => f.studentId === user.id)
+                    : DataService.getFines();
+
+                const pendingSum = activeList.filter(f => f.status === "Pending").reduce((s, f) => s + f.amount, 0);
+                const paidSum = activeList.filter(f => f.status === "Paid").reduce((s, f) => s + f.amount, 0);
+                
+                document.getElementById("fines-pending-sum").innerText = `₹${pendingSum}`;
+                document.getElementById("fines-paid-sum").innerText = `₹${paidSum}`;
+                document.getElementById("fines-total-sum").innerText = `₹${pendingSum + paidSum}`;
+            };
+
+            const loadTableScope = () => {
+                if (user.role === "student") {
+                    fines = DataService.getFines().filter(f => f.studentId === user.id);
+                } else if (user.role === "coordinator" || user.role === "hod") {
+                    fines = DataService.getFines().filter(f => f.department === user.department);
+                } else {
+                    fines = DataService.getFines();
+                }
+            };
+
+            loadTableScope();
+            renderKPIs();
+
+            // Initialize Table Helper
+            TableHelper.init("fines-table", fines, ["ID", "Student", "Amount", "Issued", "Reason", "Status", "Receipt", "Actions"], {
+                limit: 5,
+                sortBy: "date",
+                sortOrder: "desc",
+                renderRow: (row) => {
+                    const tr = document.createElement("tr");
+                    const isPending = row.status === "Pending";
+                    const isStudent = user.role === "student";
+
+                    tr.innerHTML = `
+                        <td style="font-weight:600; color:var(--text-secondary);">${row.id}</td>
+                        <td>
+                            <div style="font-weight:600;">${row.studentName}</div>
+                            <small style="color:var(--text-secondary);">${row.studentId}</small>
+                        </td>
+                        <td style="font-weight:600; color: ${isPending ? 'var(--danger)' : 'inherit'}">₹${row.amount}</td>
+                        <td>${row.date}</td>
+                        <td><small>${row.reason}</small></td>
+                        <td><span class="badge ${isPending ? 'badge-danger' : 'badge-success'}">${row.status}</span></td>
+                        <td><small style="font-family:monospace; color:var(--text-secondary);">${row.transactionId || 'N/A'}</small></td>
+                        <td>
+                            ${(isStudent && isPending)
+                                ? `<button class="btn btn-secondary p-8" style="padding: 6px 12px; font-size:0.8rem;" onclick="openPaymentModal('${row.id}', ${row.amount})">
+                                    <i class="fas fa-wallet"></i> Pay Fine
+                                   </button>`
+                                : `<span style="font-size:0.8rem; color:var(--text-secondary)">No action required</span>`
+                            }
+                        </td>
+                    `;
+                    return tr;
+                }
+            });
+
+            // Filter triggers
+            const statusFilter = document.getElementById("filter-fine-status");
+            statusFilter.addEventListener("change", (e) => {
+                const val = e.target.value;
+                let filtered = [...fines];
+                if (val !== "ALL") {
+                    filtered = filtered.filter(f => f.status === val);
+                }
+                TableHelper.tables["fines-table"].data = filtered;
+                TableHelper.applyFilters("fines-table");
+            });
+
+            // Trigger payment modal
+            window.openPaymentModal = (id, amount) => {
+                document.getElementById("payment-fine-id").value = id;
+                document.getElementById("payment-amount-label").innerText = `₹${amount}`;
+                
+                // Clear fields
+                document.getElementById("card-num").value = "";
+                document.getElementById("card-expiry").value = "";
+                document.getElementById("card-cvv").value = "";
+
+                ModalController.show("pay-fine-modal");
+            };
+
+            // Payment Form submit
+            document.getElementById("pay-fine-form").onsubmit = (e) => {
+                e.preventDefault();
+                const fineId = document.getElementById("payment-fine-id").value;
+                
+                // Pay fine
+                const fine = DataService.payFine(fineId);
+                ModalController.hide("pay-fine-modal");
+                
+                if (fine) {
+                    Toast.success("Payment Successful", `Penalized balance cleared. Receipt ID: ${fine.transactionId}`);
+                    
+                    // Reload table scope and KPIs
+                    loadTableScope();
+                    renderKPIs();
+                    
+                    // Re-apply filters
+                    TableHelper.tables["fines-table"].data = fines;
+                    TableHelper.applyFilters("fines-table");
+                }
+            };
+        });
+    </script>
+</body>
+</html>
