@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="card-header">
+                        <span class="card-title">Portal Preferences & System Settings</span>
+                    </div>
+                    
+                    <form id="settings-form">
+                        <!-- Theme Setting -->
+                        <div class="settings-row">
+                            <div>
+                                <strong style="color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:4px;">Portal Dark Mode Theme</strong>
+                                <span style="color:var(--text-secondary); font-size:0.8rem;">Switch between light theme and modern high-contrast dark dashboard styling.</span>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-dark-theme">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Email Notification -->
+                        <div class="settings-row">
+                            <div>
+                                <strong style="color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:4px;">Email Action Alerts</strong>
+                                <span style="color:var(--text-secondary); font-size:0.8rem;">Send automatic leave approval or fine creation alerts directly to your inbox.</span>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-email">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- SMS Notifications -->
+                        <div class="settings-row">
+                            <div>
+                                <strong style="color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:4px;">SMS Notification Dispatch</strong>
+                                <span style="color:var(--text-secondary); font-size:0.8rem;">Forward priority unexcused notices or reminders to parent/guardian mobile logs.</span>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-sms">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Setting -->
+                        <div class="settings-row">
+                            <div>
+                                <strong style="color:var(--text-primary); font-size:0.95rem; display:block; margin-bottom:4px;">Display Public Metrics</strong>
+                                <span style="color:var(--text-secondary); font-size:0.8rem;">Make student compliance metrics visible in department leaderboard ranking profiles.</span>
+                            </div>
+                            <div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="setting-privacy" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Save button -->
+                        <div class="d-flex justify-between align-center mt-32 pt-24" style="border-top:1px solid var(--border);">
+                            <button type="button" id="reset-db-btn" class="btn btn-outline" style="color:var(--danger); border-color:var(--danger-light);">
+                                <i class="fas fa-trash-alt"></i> Reset Seeding Database
+                            </button>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Load saved preferences
+            const settings = DataService.getSettings();
+            
+            document.getElementById("setting-dark-theme").checked = (settings.theme === "dark");
+            document.getElementById("setting-email").checked = settings.emailNotifications;
+            document.getElementById("setting-sms").checked = settings.smsNotifications;
+
+            // Save Settings Submit handler
+            document.getElementById("settings-form").onsubmit = (e) => {
+                e.preventDefault();
+                
+                const isDark = document.getElementById("setting-dark-theme").checked;
+                const email = document.getElementById("setting-email").checked;
+                const sms = document.getElementById("setting-sms").checked;
+
+                const updated = DataService.updateSettings({
+                    theme: isDark ? "dark" : "light",
+                    emailNotifications: email,
+                    smsNotifications: sms
+                });
+
+                // Apply theme immediately
+                document.documentElement.setAttribute("data-theme", updated.theme);
+
+                Toast.success("Settings Saved", "Preferences updated in local cache configuration.");
+            };
+
+            // Database Wipe/Reset Simulator button
+            document.getElementById("reset-db-btn").onclick = () => {
+                const conf = confirm("WARNING: This will wipe localStorage and reset all mock databases (students, leaves, fines) back to defaults. Do you want to proceed?");
+                if (conf) {
+                    localStorage.clear();
+                    Toast.warning("Database Cleared", "Wiping local session data. Redirecting...");
+                    
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1200);
+                }
+            };
+        });
+    </script>
+</body>
+</html>

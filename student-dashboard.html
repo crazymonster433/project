@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Welcome Section -->
+                <div class="card welcome-card mb-24">
+                    <div style="max-width: 600px; position: relative; z-index: 10;">
+                        <h1 class="card-title" id="welcome-title" style="font-size: 1.75rem; margin-bottom: 8px;">Welcome back!</h1>
+                        <p style="opacity: 0.9; font-size: 0.95rem;">Keep track of your academic attendance, submit leave requests directly to your department coordinator, and view outstanding fine records.</p>
+                    </div>
+                    <i class="fas fa-graduation-cap welcome-card-icon"></i>
+                </div>
+
+                <!-- KPI Statistics Grid -->
+                <div class="grid-cols-4 gap-24 mb-24">
+                    <!-- Attendance Card -->
+                    <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                        <span class="card-title mb-16" style="font-size: 0.9rem; font-weight:600; color: var(--text-secondary);">ATTENDANCE STATUS</span>
+                        <div class="attendance-ring-container mb-8">
+                            <svg class="attendance-ring-svg" width="140" height="140">
+                                <circle class="attendance-ring-circle-bg" cx="70" cy="70" r="60"></circle>
+                                <circle class="attendance-ring-circle-fill" cx="70" cy="70" r="60"></circle>
+                            </svg>
+                            <div class="attendance-ring-text">
+                                <span class="attendance-ring-percent" id="attendance-percent">0%</span>
+                                <div class="attendance-ring-label">Aggregate</div>
+                            </div>
+                        </div>
+                        <small style="color: var(--text-secondary); font-size: 0.75rem;">Minimum threshold: 75%</small>
+                    </div>
+
+                    <!-- Leave Balance Card -->
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">LEAVE BALANCE</span>
+                            <span class="stat-value" id="leave-balance">0</span>
+                            <small style="color: var(--text-secondary);">Days remaining this sem</small>
+                        </div>
+                        <div class="stat-icon secondary">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Applied Leaves Card -->
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">APPLIED LEAVES</span>
+                            <span class="stat-value" id="applied-leaves-count">0</span>
+                            <small style="color: var(--text-secondary);">Total submitted logs</small>
+                        </div>
+                        <div class="stat-icon primary">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                    </div>
+
+                    <!-- Fine Balance Card -->
+                    <div class="card stat-card">
+                        <div class="stat-info">
+                            <span class="stat-label">PENDING FINES</span>
+                            <span class="stat-value" id="fine-balance">₹0</span>
+                            <small style="color: var(--text-secondary);">Overdue absence penalties</small>
+                        </div>
+                        <div class="stat-icon danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Section Grid (Chart + Activity/Quick Actions) -->
+                <div class="grid-cols-3 gap-24">
+                    
+                    <!-- Chart Column (Spans 2 columns on larger screens) -->
+                    <div class="card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <span class="card-title">Attendance Tracking (6 Weeks)</span>
+                            <span class="badge badge-info">Active Sem</span>
+                        </div>
+                        <div style="height: 320px;">
+                            <canvas id="student-attendance-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions & Activities Column -->
+                    <div class="flex-column gap-24">
+                        <!-- Quick Actions Card -->
+                        <div class="card">
+                            <span class="card-title" style="display:block; margin-bottom:16px;">Quick Actions</span>
+                            <div class="d-flex flex-column gap-8">
+                                <a href="leave-application.html" class="btn btn-primary w-full">
+                                    <i class="fas fa-plus"></i> Apply for Leave
+                                </a>
+                                <a href="leave-history.html" class="btn btn-outline w-full" style="justify-content: flex-start;">
+                                    <i class="fas fa-history"></i> Leave History
+                                </a>
+                                <a href="fine-management.html" class="btn btn-outline w-full" style="justify-content: flex-start; border-color: var(--danger-light); color: var(--danger);">
+                                    <i class="fas fa-wallet"></i> Pay Academic Fines
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activities Card -->
+                        <div class="card">
+                            <span class="card-title" style="display:block; margin-bottom:16px;">Recent Activities</span>
+                            <div id="recent-activities-list" class="d-flex flex-column">
+                                <!-- Loaded dynamically via dashboard.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts Container -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

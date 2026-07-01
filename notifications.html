@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Center - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <style>
+        .notification-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-card:hover {
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .notification-card.unread {
+            background-color: var(--primary-light);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .notification-card.unread::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.leave { background-color: rgba(34, 197, 94, 0.15); color: var(--secondary); }
+        .notification-icon.fine { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .notification-icon.system { background-color: rgba(37, 99, 235, 0.15); color: var(--primary); }
+        .notification-icon.report { background-color: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <div class="card" style="max-width: 900px; margin: 0 auto;">
+                    <!-- Toolbar header -->
+                    <div class="table-header-toolbar" style="border:none; padding:0; background:none; margin-bottom:20px;">
+                        <div class="table-filters" style="flex-grow:1;">
+                            <div class="table-search-bar" style="max-width:240px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="notif-search" placeholder="Search notices...">
+                            </div>
+
+                            <select id="filter-notif-category" class="form-control select-dropdown" style="max-width:160px; padding:10px 16px;">
+                                <option value="ALL">All Categories</option>
+                                <option value="leave">Leave Alerts</option>
+                                <option value="fine">Fine Notices</option>
+                                <option value="report">Reports</option>
+                                <option value="system">System Logs</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <button id="mark-all-read-btn" class="btn btn-outline">
+                                <i class="fas fa-check-double"></i> Mark All as Read
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- List body -->
+                    <div id="notifications-list" class="d-flex flex-column">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            let list = DataService.getNotifications(user.id);
+
+            const renderList = () => {
+                const container = document.getElementById("notifications-list");
+                container.innerHTML = "";
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center" style="padding: 48px 0; color:var(--text-secondary);">
+                            <i class="fas fa-bell-slash" style="font-size:2.5rem; margin-bottom:16px; opacity:0.5;"></i>
+                            <p style="font-size: 0.95rem;">Your notification tray is empty.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.forEach(notif => {
+                    const card = document.createElement("div");
+                    card.className = `notification-card ${notif.isRead ? '' : 'unread'}`;
+                    
+                    let icon = "fa-bell";
+                    if (notif.category === "leave") icon = "fa-paper-plane";
+                    if (notif.category === "fine") icon = "fa-gavel";
+                    if (notif.category === "system") icon = "fa-server";
+                    if (notif.category === "report") icon = "fa-file-alt";
+
+                    card.innerHTML = `
+                        <div class="notification-icon ${notif.category}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div style="flex-grow:1;">
+                            <div class="d-flex justify-between align-center mb-4">
+                                <strong style="font-size:0.95rem; color:var(--text-primary);">${notif.title}</strong>
+                                <small style="color:var(--text-secondary); font-size:0.75rem;">${notif.date}</small>
+                            </div>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">${notif.message}</p>
+                        </div>
+                    `;
+
+                    // Mark as read click event
+                    card.onclick = () => {
+                        if (!notif.isRead) {
+                            DataService.markNotificationAsRead(notif.id);
+                            // Refresh layout
+                            list = DataService.getNotifications(user.id);
+                            renderList();
+                            
+                            // Re-render header navbar badge
+                            const navbar = document.getElementById("navbar");
+                            if (navbar) renderNavbar(navbar, user);
+                            
+                            Toast.success("Notification Read", "Marked notification as read.");
+                        }
+                    };
+
+                    container.appendChild(card);
+                });
+            };
+
+            // Search & Filter event handlers
+            const searchInput = document.getElementById("notif-search");
+            const categorySelect = document.getElementById("filter-notif-category");
+
+            const filterAndRender = () => {
+                const query = searchInput.value.toLowerCase();
+                const cat = categorySelect.value;
+                
+                const raw = DataService.getNotifications(user.id);
+                list = raw.filter(n => {
+                    const matchesSearch = n.title.toLowerCase().includes(query) || n.message.toLowerCase().includes(query);
+                    const matchesCat = cat === "ALL" || n.category === cat;
+                    return matchesSearch && matchesCat;
+                });
+                renderList();
+            };
+
+            searchInput.addEventListener("input", filterAndRender);
+            categorySelect.addEventListener("change", filterAndRender);
+
+            // Mark all read button
+            document.getElementById("mark-all-read-btn").onclick = () => {
+                DataService.markAllNotificationsAsRead(user.id);
+                list = DataService.getNotifications(user.id);
+                renderList();
+                
+                // Re-render header navbar badge
+                const navbar = document.getElementById("navbar");
+                if (navbar) renderNavbar(navbar, user);
+                
+                Toast.success("All Cleared", "All notifications marked as read.");
+            };
+
+            renderList();
+        });
+    </script>
+</body>
+</html>

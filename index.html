@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Absentee Leave Monitoring & Reporting System</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .splash-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: var(--background);
+            text-align: center;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-screen anim-fade-in">
+        <div class="spinner"></div>
+        <h2 style="font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Smart Absentee Leave ERP</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Checking session credentials...</p>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Redirect logic
+        setTimeout(() => {
+            const user = AuthManager.getCurrentUser();
+            if (user) {
+                window.location.href = `${user.role}-dashboard.html`;
+            } else {
+                window.location.href = "login.html";
+            }
+        }, 800);
+    </script>
+</body>
+</html>

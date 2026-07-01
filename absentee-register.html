@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absentee Register - Smart Absentee Leave ERP</title>
+    <!-- CSS & Typography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar placeholder -->
+        <aside class="sidebar" id="sidebar"></aside>
+        
+        <main class="main-content" id="main-layout-frame">
+            <!-- Navbar placeholder -->
+            <header class="navbar" id="navbar"></header>
+            
+            <div class="content-body anim-slide-up">
+                
+                <!-- Absentee Register Console -->
+                <div class="table-container">
+                    <div class="table-header-toolbar">
+                        <div class="table-filters" style="flex-grow: 1;">
+                            <!-- Search Bar -->
+                            <div class="table-search-bar" style="max-width:260px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="absentee-table-search" placeholder="Search absentee logs...">
+                            </div>
+
+                            <!-- Department Filter -->
+                            <select id="filter-dept" class="form-control select-dropdown" style="max-width:180px; padding:10px 16px;">
+                                <option value="ALL">All Departments</option>
+                                <option value="Computer Science & Engineering">Computer Science</option>
+                                <option value="Electronics & Communication">Electronics</option>
+                                <option value="Mechanical Engineering">Mechanical</option>
+                                <option value="Electrical Engineering">Electrical</option>
+                            </select>
+
+                            <!-- Date Filter -->
+                            <input type="date" id="filter-date" class="form-control" style="max-width:160px; padding:10px 16px;">
+                        </div>
+                        
+                        <!-- Export Button -->
+                        <div>
+                            <button id="export-btn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="data-table" id="absentee-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-col="date">Date <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="studentName">Student Details <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" data-col="department">Department <i class="fas fa-sort"></i></th>
+                                    <th>Missed Lectures</th>
+                                    <th class="sortable" data-col="status">Status <i class="fas fa-sort"></i></th>
+                                    <th>Supervised By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loaded dynamically via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <div class="pagination-info" id="absentee-table-pagination-info">Showing 0 to 0 of 0 entries</div>
+                        <div class="pagination-controls" id="absentee-table-pagination-controls">
+                            <!-- pagination controls -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Fine Issuance Dialog Modal -->
+    <div class="modal" id="issue-fine-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Register Unexcused Fine Penalty</span>
+                <button class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="issue-fine-form">
+                <div class="modal-body">
+                    <input type="hidden" id="fine-student-id">
+                    <input type="hidden" id="fine-student-name">
+                    <input type="hidden" id="fine-student-dept">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Student Target</label>
+                        <p id="fine-target-label" style="font-weight:600; font-size:1rem;"></p>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="fine-amount">Fine Amount (₹)</label>
+                            <input type="number" id="fine-amount" class="form-control" value="250" required>
+                        </div>
+                        <div></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="fine-reason">Infraction Reason</label>
+                        <textarea id="fine-reason" class="form-control" rows="3" required>Consecutive 3 days absence without prior leave submission.</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Issue Invoice Fine</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Scripts Container -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const user = AuthManager.getCurrentUser();
+            if (!user) return;
+
+            // Set default date filter to today
+            const filterDate = document.getElementById("filter-date");
+            filterDate.value = "2026-07-01"; // matches our mock database date
+
+            const list = DataService.getAbsentees();
+
+            // Initialize Table Helper
+            TableHelper.init("absentee-table", list, ["Date", "Student", "Department", "Lectures", "Status", "By", "Actions"], {
+                limit: 5,
+                sortBy: "date",
+                sortOrder: "desc",
+                renderRow: (row) => {
+                    const tr = document.createElement("tr");
+                    let badgeClass = "badge-danger";
+                    if (row.status === "Present") badgeClass = "badge-success";
+                    if (row.status === "Leave Applied") badgeClass = "badge-warning";
+                    if (row.status === "Excused") badgeClass = "badge-success";
+                    if (row.status === "Fine Issued") badgeClass = "badge-danger";
+
+                    const isStudent = user.role === "student";
+
+                    tr.innerHTML = `
+                        <td>${row.date}</td>
+                        <td>
+                            <div style="font-weight:600;">${row.studentName}</div>
+                            <small style="color:var(--text-secondary);">${row.studentId}</small>
+                        </td>
+                        <td>${row.department}</td>
+                        <td>
+                            ${row.lecturesMissed.length > 0 
+                                ? row.lecturesMissed.map(l => `<span style="font-size:0.75rem; border:1px solid var(--border); padding:2px 6px; border-radius:4px; margin-right:4px; display:inline-block; margin-bottom:4px;">${l}</span>`).join("")
+                                : `<span style="color:var(--text-secondary); font-size:0.8rem;">None (Checked Present)</span>`
+                            }
+                        </td>
+                        <td><span class="badge ${badgeClass}">${row.status}</span></td>
+                        <td><small>${row.markedBy}</small></td>
+                        <td>
+                            ${(!isStudent && row.status === "Unexcused") 
+                                ? `<div class="d-flex gap-8">
+                                    <button class="btn btn-outline" style="padding:6px 12px; font-size:0.75rem; color:var(--secondary); border-color:var(--secondary-light);" onclick="excuseAbsence('${row.studentId}', '${row.date}')">
+                                        <i class="fas fa-check"></i> Excuse
+                                    </button>
+                                    <button class="btn btn-danger" style="padding:6px 12px; font-size:0.75rem;" onclick="openFineModal('${row.studentId}', '${row.studentName}', '${row.department}')">
+                                        <i class="fas fa-gavel"></i> Fine
+                                    </button>
+                                   </div>`
+                                : `<span style="font-size:0.8rem; color:var(--text-secondary)">No action needed</span>`
+                            }
+                        </td>
+                    `;
+                    return tr;
+                }
+            });
+
+            // Filter triggers
+            const filterDept = document.getElementById("filter-dept");
+
+            const applyCustomFilters = () => {
+                const deptVal = filterDept.value;
+                const dateVal = filterDate.value;
+
+                let filtered = [...list];
+                if (deptVal !== "ALL") {
+                    filtered = filtered.filter(a => a.department === deptVal);
+                }
+                if (dateVal) {
+                    filtered = filtered.filter(a => a.date === dateVal);
+                }
+
+                TableHelper.tables["absentee-table"].data = filtered;
+                TableHelper.applyFilters("absentee-table");
+            };
+
+            filterDept.addEventListener("change", applyCustomFilters);
+            filterDate.addEventListener("change", applyCustomFilters);
+
+            // Trigger initial filters
+            applyCustomFilters();
+
+            // Export handler
+            document.getElementById("export-btn").onclick = () => {
+                Toast.success("Export Successful", "Absentee roster spreadsheet downloaded (mock download).");
+            };
+
+            // Excuse action
+            window.excuseAbsence = (studentId, date) => {
+                const success = DataService.updateAbsenteeStatus(studentId, date, "Excused");
+                if (success) {
+                    Toast.success("Status Updated", "Absence marked as Excused.");
+                    applyCustomFilters();
+                }
+            };
+
+            // Fine trigger modal
+            window.openFineModal = (id, name, dept) => {
+                document.getElementById("fine-student-id").value = id;
+                document.getElementById("fine-student-name").value = name;
+                document.getElementById("fine-student-dept").value = dept;
+                document.getElementById("fine-target-label").innerText = `${name} (${id})`;
+                ModalController.show("issue-fine-modal");
+            };
+
+            // Fine Submit Form
+            document.getElementById("issue-fine-form").onsubmit = (e) => {
+                e.preventDefault();
+                const id = document.getElementById("fine-student-id").value;
+                const name = document.getElementById("fine-student-name").value;
+                const dept = document.getElementById("fine-student-dept").value;
+                const amount = parseInt(document.getElementById("fine-amount").value);
+                const reason = document.getElementById("fine-reason").value;
+
+                // Issue fine
+                DataService.addFine({
+                    studentId: id,
+                    studentName: name,
+                    department: dept,
+                    amount,
+                    reason
+                });
+
+                // Update absentee register entry
+                DataService.updateAbsenteeStatus(id, "2026-07-01", "Fine Issued");
+
+                ModalController.hide("issue-fine-modal");
+                Toast.success("Fine Penalty Issued", `₹${amount} penalty registered under ${name}.`);
+                applyCustomFilters();
+            };
+        });
+    </script>
+</body>
+</html>
