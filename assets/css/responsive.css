@@ -1,0 +1,180 @@
+/* Responsive Design Breakpoints */
+
+/* Laptop screens */
+@media (max-width: 1200px) {
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+}
+
+/* Tablet screens */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+    
+    aside.sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+    
+    aside.sidebar.mobile-active {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    main.main-content {
+        margin-left: 0 !important;
+    }
+    
+    header.navbar {
+        padding: 0 16px;
+    }
+    
+    .nav-left {
+        gap: 12px;
+    }
+    
+    .content-body {
+        padding: 16px;
+    }
+    
+    .profile-info {
+        display: none; /* Hide profile name in header to save space */
+    }
+    
+    .grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 16px;
+    }
+    
+    .grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 16px;
+    }
+    
+    /* Responsive Dialogs */
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    /* Table styling for small screens */
+    .table-header-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .table-search-bar {
+        max-width: 100%;
+    }
+    
+    .table-filters {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .table-filters .form-control {
+        flex-grow: 1;
+    }
+}
+
+/* Mobile Screens */
+@media (max-width: 576px) {
+    .grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 12px;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .content-body {
+        padding: 12px;
+    }
+    
+    .breadcrumb-container {
+        display: none; /* Hide breadcrumbs on small mobile devices */
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .tabs-header {
+        gap: 12px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Firefox */
+    }
+    
+    .tabs-header::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+    
+    .tab-btn {
+        padding: 10px 2px;
+        font-size: 0.85rem;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+}
+
+/* --- Mobile Drawer Backdrop overlay --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.4);
+    z-index: 95;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* --- Print Styles (Optional but helpful for reports) --- */
+@media print {
+    aside.sidebar, header.navbar, .breadcrumb-container, .pagination, .table-header-toolbar, .btn {
+        display: none !important;
+    }
+    main.main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    body {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+}
